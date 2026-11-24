@@ -104,6 +104,11 @@ def spa(full_path: str):
         return JSONResponse({"detail": "Not Found"}, status_code=404)
     index = os.path.join(FRONTEND_DIST, "index.html")
     if not os.path.isfile(index):
+        # API-only deploy (e.g. Render): send visitors to the website instead of an error.
+        site = config.FRONTEND_URL.rstrip("/")
+        if config.IS_PROD and site and not site.startswith("http://localhost"):
+            from fastapi.responses import RedirectResponse
+            return RedirectResponse(site + "/" + full_path, status_code=307)
         return JSONResponse({"detail": "Frontend not built. Run `npm run build` in frontend/, or open /docs."},
                             status_code=404)
     candidate = os.path.abspath(os.path.join(FRONTEND_DIST, full_path))
