@@ -1,0 +1,36 @@
+# Local production-like stack: Postgres + the all-in-one app on http://localhost:8000
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: talentmatch
+      POSTGRES_USER: talentmatch
+      POSTGRES_PASSWORD: talentmatch
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talentmatch -d talentmatch"]
+      interval: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: postgresql://talentmatch:talentmatch@db:5432/talentmatch
+      SECRET_KEY: change-me-to-a-long-random-string
+      ADMIN_EMAIL: admin@talentmatch.dev
+      ADMIN_PASSWORD: Admin@12345
+      CORS_ORIGINS: http://localhost:8000
+      # RAZORPAY_KEY_ID: rzp_test_xxx
+      # RAZORPAY_KEY_SECRET: xxx
+      # RAZORPAY_WEBHOOK_SECRET: xxx
+      # RAZORPAY_ROUTE_ENABLED: "true"   # automatic freelancer payouts
+      # STRIPE_SECRET_KEY: sk_test_xxx     # USD / EUR / GBP
+      # STRIPE_WEBHOOK_SECRET: whsec_xxx
+      # SMTP_HOST: smtp.example.com        # without it, emails go to the server log
+      FRONTEND_URL: http://localhost:8000
+
+volumes:
+  pgdata: {}

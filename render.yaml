@@ -1,0 +1,51 @@
+# Render Blueprint — API (Docker). Database: Neon (paste its connection string into DATABASE_URL).
+# Frontend: Vercel (root directory "frontend"). vercel.json forwards /api/* here, so the browser sees one site.
+services:
+  - type: web
+    name: talentmatch-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false          # Neon connection string (postgresql://…?sslmode=require)
+      - key: SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SAMESITE
+        value: lax           # first-party cookie: requests come through the Vercel /api proxy
+      - key: CORS_ORIGINS
+        sync: false          # your Vercel URL, e.g. https://talentmatch.vercel.app
+      - key: FRONTEND_URL
+        sync: false          # same Vercel URL — used in emails and Stripe return links
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: RAZORPAY_ROUTE_ENABLED
+        value: "false"       # set to "true" once Razorpay has activated Route on your account
+      - key: STRIPE_SECRET_KEY
+        sync: false          # sk_test_… for USD / EUR / GBP payments
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false          # whsec_… from the Stripe webhook pointing at /api/v1/payments/stripe/webhook
+      - key: SMTP_HOST
+        sync: false          # e.g. smtp.resend.com / smtp.sendgrid.net / smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false          # e.g. TalentMatch <no-reply@yourdomain.com>
+      - key: SIGNUP_MODE
+        value: open

@@ -1,0 +1,7 @@
+# Optional: OCR plugins for scanned CVs / images. Large downloads (easyocr pulls in PyTorch).
+# pytesseract also needs the Tesseract binary installed on the machine.
+-r requirements.txt
+pytesseract
+Pillow
+easyocr
+numpy
